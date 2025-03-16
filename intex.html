@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>04 Programı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e3f2fd;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            flex: 1;
+            position: relative;
+        }
+        h1 {
+            color: #2196F3;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .info-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .info-button:hover {
+            background-color: #1976D2;
+        }
+        .info-button:active {
+            transform: scale(0.95);
+        }
+        .info-box {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 10px;
+            background-color: #f9f9f9;
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 10;
+            text-align: left;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+        }
+        .game-info {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-left: 5px solid #4CAF50;
+            border-radius: 5px;
+            color: #2e7d32;
+            font-size: 16px;
+        }
+        .input-group {
+            margin: 20px 0;
+            padding: 25px;
+            background-color: #e6f3ff;
+            border-left: 5px solid #2196F3;
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .input-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .step-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .step-number {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        input {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            width: 70px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+        input.game-input {
+            width: 90px;
+            border-color: #ff0000;
+        }
+        input:focus {
+            border-color: #1976D2;
+            background-color: #f0f8ff;
+        }
+        input.filled {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+        select {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            outline: none;
+            background-color: #fff;
+        }
+        button {
+            padding: 12px 25px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: transform 0.1s, background-color 0.3s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #submit-button:disabled {
+            display: none;
+        }
+        #replay-button {
+            background-color: #4CAF50;
+            display: none;
+        }
+        #back-button {
+            background-color: #f44336;
+        }
+        #hint-button {
+            background-color: #ff9800;
+        }
+        #game-result, #solution {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            text-align: left;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 5px solid #4CAF50;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        #game-result strong, #solution strong {
+            color: #2e7d32;
+        }
+        #difficulty-section, #game-section {
+            display: none;
+        }
+        #timer {
+            font-size: 18px;
+            color: #2196F3;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        footer {
+            text-align: right;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #666;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <button class="info-button" onclick="toggleInfo()">?</button>
+        <div id="info-box" class="info-box"></div>
+        <h1 id="game-title">04 Programı</h1>
+        <div id="main-section">
+            <div class="input-group">
+                <label>Dört Sayıyı Gir (ör. 6 3 2 1):</label>
+                <div class="input-row">
+                    <input type="number" id="num1" min="0" required>
+                    <input type="number" id="num2" min="0" required>
+                    <input type="number" id="num3" min="0" required>
+                    <input type="number" id="num4" min="0" required>
+                </div>
+                <div class="input-row">
+                    <button onclick="findSolution()">Çöz</button>
+                    <button onclick="showDifficultySelection()">Oyna</button>
+                </div>
+            </div>
+            <div id="solution"></div>
+        </div>
+
+        <div id="difficulty-section">
+            <div class="input-group">
+                <label>Zorluk Seviyesini Seç:</label>
+                <div class="input-row">
+                    <button onclick="startGame('kolay', 600)">Kolay (600s)</button>
+                    <button onclick="startGame('orta', 300)">Orta (300s)</button>
+                    <button onclick="startGame('zor', 150)">Zor (150s)</button>
+                </div>
+                <button id="back-button" onclick="backToMain()">Geri</button>
+            </div>
+        </div>
+
+        <div id="game-section">
+            <div class="game-info">
+                <div id="game-numbers"></div>
+                <div id="timer">Kalan süre: 600 saniye</div>
+            </div>
+            <div class="input-group">
+                <div class="step-container">
+                    <div class="step-number">1</div>
+                    <input type="number" class="game-input" id="step1-num1" placeholder="Sayı 1" oninput="checkInput('step1')">
+                    <select id="step1-op" onchange="checkInput('step1')">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">×</option>
+                        <option value="/">÷</option>
+                    </select>
+                    <input type="number" class="game-input" id="step1-num2" placeholder="Sayı 2" oninput="checkInput('step1')">
+                    <span>=</span>
+                    <input type="number" class="game-input" id="step1-result" placeholder="Sonuç" oninput="checkInput('step1')">
+                </div>
+                <div class="step-container">
+                    <div class="step-number">2</div>
+                    <input type="number" class="game-input" id="step2-num1" placeholder="Sayı 1" oninput="checkInput('step2')">
+                    <select id="step2-op" onchange="checkInput('step2')">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">×</option>
+                        <option value="/">÷</option>
+                    </select>
+                    <input type="number" class="game-input" id="step2-num2" placeholder="Sayı 2" oninput="checkInput('step2')">
+                    <span>=</span>
+                    <input type="number" class="game-input" id="step2-result" placeholder="Sonuç" oninput="checkInput('step2')">
+                </div>
+                <div class="step-container">
+                    <div class="step-number">3</div>
+                    <input type="number" class="game-input" id="step3-num1" placeholder="Sayı 1" oninput="checkInput('step3')">
+                    <select id="step3-op" onchange="checkInput('step3')">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">×</option>
+                        <option value="/">÷</option>
+                    </select>
+                    <input type="number" class="game-input" id="step3-num2" placeholder="Sayı 2" oninput="checkInput('step3')">
+                    <span>=</span>
+                    <input type="number" class="game-input" id="step3-result" placeholder="Sonuç" oninput="checkInput('step3')">
+                </div>
+                <div class="input-row">
+                    <button id="submit-button" onclick="submitGame()">Gönder</button>
+                    <button id="hint-button" onclick="getHint()">İpucu</button>
+                    <button id="back-button" onclick="exitGame()">Geri</button>
+                    <button id="replay-button" onclick="replayGame()">Yeniden Oyna</button>
+                </div>
+            </div>
+            <div id="game-result"></div>
+        </div>
+    </div>
+
+    <footer>
+        NOPERSET
+    </footer>
+
+    <script>
+        let gameNumbers = [];
+        let timerInterval;
+        let timeLeft = 600;
+        let initialTime = 600;
+        let correctSteps = [];
+        let hintCount = 0;
+        let currentRemaining = [];
+        let remainingHistory = [];
+        let currentDifficulty = '';
+
+        function solve(numbers, steps = [], depth = 0) {
+            if (numbers.length === 0) {
+                return { success: true, steps };
+            }
+            if (numbers.length < 2) {
+                steps.push(`${depth + 1} ADIM: Çözüm bulunamadı! // (Kalan sayılar ${numbers.join(' ')})`);
+                return { success: false, steps };
+            }
+
+            for (let i = 0; i < numbers.length; i++) {
+                for (let j = i + 1; j < numbers.length; j++) {
+                    let numA = numbers[i];
+                    let numB = numbers[j];
+                    let operations = ['+', '-', '*', '/'];
+
+                    for (let op of operations) {
+                        let result;
+                        let displayNumA = numA;
+                        let displayNumB = numB;
+
+                        if (op === '+') result = numA + numB;
+                        else if (op === '-') {
+                            result = numA >= numB ? numA - numB : numB - numA;
+                            if (numA < numB) [displayNumA, displayNumB] = [numB, numA];
+                        } else if (op === '*') result = numA * numB;
+                        else if (op === '/' && numB !== 0 && numA % numB === 0) result = numA / numB;
+                        else continue;
+
+                        if (result < 0) continue;
+
+                        let newNumbers = numbers.filter((_, idx) => idx !== i && idx !== j);
+                        if (result !== 0) newNumbers.push(result);
+
+                        let newSteps = [...steps, `${depth + 1} ADIM: ${displayNumA}${op}${displayNumB}=${result} // (Kalan sayılar ${newNumbers.join(' ')})`];
+                        let subResult = solve(newNumbers, newSteps, depth + 1);
+                        if (subResult.success) {
+                            return subResult;
+                        }
+                    }
+                }
+            }
+
+            if (steps.length === 0 || !steps[steps.length - 1].includes('Çözüm bulunamadı')) {
+                steps.push(`${depth + 1} ADIM: Çözüm bulunamadı! // (Kalan sayılar ${numbers.join(' ')})`);
+            }
+            return { success: false, steps };
+        }
+
+        function findSolution() {
+            const num1 = parseInt(document.getElementById('num1').value);
+            const num2 = parseInt(document.getElementById('num2').value);
+            const num3 = parseInt(document.getElementById('num3').value);
+            const num4 = parseInt(document.getElementById('num4').value);
+
+            if (isNaN(num1) || isNaN(num2) || isNaN(num3) || isNaN(num4)) {
+                document.getElementById('solution').innerHTML = 'Lütfen tüm sayıları girin!';
+                return;
+            }
+
+            let numbers = [num1, num2, num3, num4];
+            const result = solve(numbers);
+            document.getElementById('solution').innerHTML = result.steps.join('<br>');
+        }
+
+        function showDifficultySelection() {
+            document.getElementById('main-section').style.display = 'none';
+            document.getElementById('difficulty-section').style.display = 'block';
+        }
+
+        function backToMain() {
+            document.getElementById('main-section').style.display = 'block';
+            document.getElementById('difficulty-section').style.display = 'none';
+        }
+
+        function startGame(difficulty, time) {
+            currentDifficulty = difficulty;
+            timeLeft = parseInt(time);
+            initialTime = timeLeft;
+            const numbers = [6, 3, 2, 1];
+            gameNumbers = numbers;
+            correctSteps = solve(numbers).steps.filter(step => step.includes('ADIM'));
+            currentRemaining = [...gameNumbers];
+            remainingHistory = [];
+            document.getElementById('game-numbers').innerHTML = `Sayılar: ${gameNumbers.join(' ')}`;
+            document.getElementById('timer').innerHTML = `Kalan süre: ${timeLeft} saniye`;
+
+            document.getElementById('difficulty-section').style.display = 'none';
+            document.getElementById('game-section').style.display = 'block';
+            document.getElementById('game-result').innerHTML = '';
+            document.getElementById('info-box').style.display = 'none';
+
+            timerInterval = setInterval(updateTimer, 1000);
+            hintCount = 0;
+            document.getElementById('hint-button').style.display = 'inline-block';
+            document.getElementById('replay-button').style.display = 'none';
+            document.getElementById('submit-button').disabled = false;
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`step${i}-num1`).value = '';
+                document.getElementById(`step${i}-op`).value = '+';
+                document.getElementById(`step${i}-num2`).value = '';
+                document.getElementById(`step${i}-result`).value = '';
+                document.getElementById(`step${i}-num1`).disabled = false;
+                document.getElementById(`step${i}-op`).disabled = false;
+                document.getElementById(`step${i}-num2`).disabled = false;
+                document.getElementById(`step${i}-result`).disabled = false;
+                checkInput(`step${i}`);
+            }
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById('timer').innerHTML = `Kalan süre: ${timeLeft} saniye`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+                document.getElementById('game-result').innerHTML = '<strong>Süre bitti, kaybettin!</strong><br>Doğru çözüm:<br>' + correctSteps.join('<br>');
+            }
+        }
+
+        function checkInput(stepId) {
+            const num1 = document.getElementById(`${stepId}-num1`).value;
+            const num2 = document.getElementById(`${stepId}-num2`).value;
+            const result = document.getElementById(`${stepId}-result`).value;
+            const inputs = [num1, num2, result].every(val => val.trim() !== '');
+            document.getElementById(`${stepId}-num1`).classList.toggle('filled', num1.trim() !== '');
+            document.getElementById(`${stepId}-num2`).classList.toggle('filled', num2.trim() !== '');
+            document.getElementById(`${stepId}-result`).classList.toggle('filled', result.trim() !== '');
+
+            updateRemainingNumbers();
+        }
+
+        function updateRemainingNumbers() {
+            let currentNumbers = [...gameNumbers];
+            remainingHistory = [];
+
+            for (let i = 1; i <= 3; i++) {
+                let num1 = parseInt(document.getElementById(`step${i}-num1`).value);
+                let op = document.getElementById(`step${i}-op`).value;
+                let num2 = parseInt(document.getElementById(`step${i}-num2`).value);
+                let result = parseInt(document.getElementById(`step${i}-result`).value);
+
+                if (isNaN(num1) || isNaN(num2) || isNaN(result)) {
+                    continue;
+                }
+
+                let index1 = currentNumbers.indexOf(num1);
+                let index2 = currentNumbers.indexOf(num2);
+                if (index1 === -1 || index2 === -1 || (num1 === num2 && currentNumbers.indexOf(num1, index1 + 1) === -1)) {
+                    continue;
+                }
+
+                if (num1 === num2) {
+                    let secondIndex = currentNumbers.indexOf(num1, index1 + 1);
+                    currentNumbers.splice(secondIndex, 1);
+                    currentNumbers.splice(index1, 1);
+                } else {
+                    currentNumbers.splice(Math.max(index1, index2), 1);
+                    currentNumbers.splice(Math.min(index1, index2), 1);
+                }
+
+                if (result !== 0) currentNumbers.push(result);
+                remainingHistory[i - 1] = [...currentNumbers];
+
+                if (currentNumbers.length === 0) {
+                    break;
+                }
+            }
+        }
+
+        function submitGame() {
+            let userSteps = [];
+            let stepDetails = [];
+            let currentNumbers = [...gameNumbers];
+            let isValid = true;
+
+            for (let i = 1; i <= 3; i++) {
+                let num1 = parseInt(document.getElementById(`step${i}-num1`).value);
+                let op = document.getElementById(`step${i}-op`).value;
+                let num2 = parseInt(document.getElementById(`step${i}-num2`).value);
+                let result = parseInt(document.getElementById(`step${i}-result`).value);
+
+                if (isNaN(num1) || isNaN(num2) || isNaN(result)) {
+                    continue;
+                }
+
+                userSteps.push({ num1, op, num2, result });
+
+                let computedResult;
+                if (op === '+') computedResult = num1 + num2;
+                else if (op === '-') computedResult = num1 >= num2 ? num1 - num2 : num2 - num1;
+                else if (op === '*') computedResult = num1 * num2;
+                else if (op === '/' && num2 !== 0 && num1 % num2 === 0) computedResult = num1 / num2;
+                else {
+                    isValid = false;
+                    break;
+                }
+
+                if (Math.abs(computedResult - result) > 0.01) {
+                    isValid = false;
+                    break;
+                }
+
+                let index1 = currentNumbers.indexOf(num1);
+                let index2 = currentNumbers.indexOf(num2);
+                if (index1 === -1 || index2 === -1 || (num1 === num2 && currentNumbers.indexOf(num1, index1 + 1) === -1)) {
+                    isValid = false;
+                    break;
+                }
+
+                if (num1 === num2) {
+                    let secondIndex = currentNumbers.indexOf(num1, index1 + 1);
+                    currentNumbers.splice(secondIndex, 1);
+                    currentNumbers.splice(index1, 1);
+                } else {
+                    currentNumbers.splice(Math.max(index1, index2), 1);
+                    currentNumbers.splice(Math.min(index1, index2), 1);
+                }
+
+                if (result !== 0) currentNumbers.push(result);
+                stepDetails.push(`${i}. ADIM: ${num1}${op}${num2}=${result} // (Kalan sayılar ${currentNumbers.join(' ')})`);
+                remainingHistory[i - 1] = [...currentNumbers];
+                currentRemaining = [...currentNumbers];
+
+                if (currentNumbers.length === 0) {
+                    break;
+                }
+            }
+
+            if (userSteps.length === 0) {
+                document.getElementById('game-result').innerHTML = 'Lütfen en az bir adım girin! ⚠️';
+                return;
+            }
+
+            if (isValid && currentNumbers.length === 0) {
+                clearInterval(timerInterval);
+                endGame();
+                let winMessages = ["Tebrikler kazandın!", "Doğru çözümü buldun!", "Bravo kazandın!", "Başarılı!"];
+                let message = winMessages[Math.floor(Math.random() * winMessages.length)];
+                if (hintCount > 1) {
+                    message = "İpin ucunu kopardın!";
+                } else if (hintCount === 1 && initialTime === 150) {
+                    message = "İpucu butonu sağolsun!";
+                }
+                document.getElementById('game-result').innerHTML = `<strong>${message}</strong><br>${stepDetails.join('<br>')}`;
+            } else {
+                document.getElementById('game-result').innerHTML = '<strong>Yanlış çözüm, tekrar dene! 😄</strong>';
+            }
+        }
+
+        function getHint() {
+            if (hintCount < 3 && correctSteps.length > hintCount) {
+                let step = correctSteps[hintCount].split(' // ')[0].split(': ')[1];
+                let [nums, result] = step.split('=');
+                let [num1, op, num2] = nums.match(/(\d+)([+\-*/])(\d+)/).slice(1);
+                result = parseInt(result);
+                document.getElementById(`step${hintCount + 1}-num1`).value = num1;
+                document.getElementById(`step${hintCount + 1}-op`).value = op;
+                document.getElementById(`step${hintCount + 1}-num2`).value = num2;
+                document.getElementById(`step${hintCount + 1}-result`).value = result;
+                checkInput(`step${hintCount + 1}`);
+                hintCount++;
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('submit-button').disabled = true;
+            document.getElementById('hint-button').style.display = 'none';
+            document.getElementById('replay-button').style.display = 'inline-block';
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`step${i}-num1`).disabled = true;
+                document.getElementById(`step${i}-op`).disabled = true;
+                document.getElementById(`step${i}-num2`).disabled = true;
+                document.getElementById(`step${i}-result`).disabled = true;
+            }
+        }
+
+        function replayGame() {
+            document.getElementById('replay-button').style.display = 'none';
+            startGame(currentDifficulty, initialTime);
+        }
+
+        function exitGame() {
+            clearInterval(timerInterval);
+            document.getElementById('main-section').style.display = 'block';
+            document.getElementById('game-section').style.display = 'none';
+            document.getElementById('game-result').innerHTML = '';
+            document.getElementById('info-box').style.display = 'none';
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`step${i}-num1`).value = '';
+                document.getElementById(`step${i}-op`).value = '+';
+                document.getElementById(`step${i}-num2`).value = '';
+                document.getElementById(`step${i}-result`).value = '';
+                document.getElementById(`step${i}-num1`).disabled = false;
+                document.getElementById(`step${i}-op`).disabled = false;
+                document.getElementById(`step${i}-num2`).disabled = false;
+                document.getElementById(`step${i}-result`).disabled = false;
+                checkInput(`step${i}`);
+            }
+            document.getElementById('submit-button').disabled = false;
+            document.getElementById('hint-button').style.display = 'none';
+        }
+
+        function toggleInfo() {
+            const infoBox = document.getElementById('info-box');
+            if (infoBox.style.display === 'block') {
+                infoBox.style.display = 'none';
+            } else {
+                let infoText = '';
+                for (let i = 0; i < remainingHistory.length; i++) {
+                    if (remainingHistory[i]) {
+                        infoText += `${i + 1}. Adım kalanları: ${remainingHistory[i].join(' ')}<br>`;
+                    }
+                }
+                infoBox.innerHTML = infoText || 'Henüz adım yapılmadı.';
+                infoBox.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
